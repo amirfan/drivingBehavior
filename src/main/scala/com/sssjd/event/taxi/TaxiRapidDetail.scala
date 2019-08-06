@@ -22,12 +22,13 @@ object TaxiRapidDetail {
   private val table = "T_AlarmJ"
   private val hbaseTable = "taxi_ns:rapidDetails"
   private val kafkaConf = LoadConfig.getKafkaConfig()
+  private val sqlserverConf = LoadConfig.getSqlServerConfig()
 
   def main(args: Array[String]): Unit = {
     val spark = SparkSession
       .builder()
       .appName("TaxiEventStreaming")
-//      .master("local[*]")
+      .master("local[*]")
       .config("spark.default.parallelism", 1000)
       .config("spark.streaming.concurrentJobs", 10)
       .config("spark.seriailzer", "org.apache.spark.serializer.KryoSerializer")
@@ -219,9 +220,11 @@ object TaxiRapidDetail {
                   if(tips != null){
                     val ary: Array[Any] = Array(dbuscard,dguid,starttime,endtime,timeInterval,alarmtype,updatetime,tips,startpos,endpos)
                     println(ary.mkString(";"))
-                    SqlserverUtil.executeUpdate(sql,ary)
+                    val jdbcDriver = sqlserverConf.get("jdbcDriver").getOrElse().toString
+                    val jdbcSize = sqlserverConf.get("jdbcSize").getOrElse().toString.toInt
+                    val connectionUrl = sqlserverConf.get("taxi_connectionUrl").getOrElse().toString
+                    SqlserverUtil(jdbcDriver,jdbcSize,connectionUrl).executeUpdate(sql,ary)
                   }
-
                 }
               }
             }

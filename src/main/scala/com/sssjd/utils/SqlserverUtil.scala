@@ -6,13 +6,24 @@ import scala.collection.mutable.ArrayBuffer
 
 object SqlserverUtil {
 
-  val jdbcDriver = "com.microsoft.sqlserver.jdbc.SQLServerDriver"
-  val jdbcSize = 1
-  val connectionUrl ="jdbc:sqlserver://192.168.100.97:1500;databaseName=JDTaxiDB;user=sa;password=sss_abc_123"
+//  val jdbcDriver = "com.microsoft.sqlserver.jdbc.SQLServerDriver"
+//  val jdbcSize = 1
+//  val connectionUrl ="jdbc:sqlserver://192.168.100.97:1500;databaseName=JDTaxiDB;user=sa;password=sss_abc_123"
 
   var datasource = ArrayBuffer[Connection]()
   var ps:PreparedStatement =null
   var rs:ResultSet=null
+  private var jdbcDriver:String = null
+  private var jdbcSize = 1
+  private var connectionUrl:String = null
+
+
+  def apply(jdbcDriver:String,jdbcSize:Int,connectionUrl:String): this.type ={
+    this.jdbcDriver = jdbcDriver
+    this.jdbcSize = jdbcSize
+    this.connectionUrl = connectionUrl
+    this
+  }
 
 //  init()
   Class.forName(jdbcDriver).newInstance()

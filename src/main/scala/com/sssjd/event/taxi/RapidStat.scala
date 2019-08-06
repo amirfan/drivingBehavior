@@ -26,7 +26,7 @@ object RapidStat {
     val spark = SparkSession
       .builder()
       .appName(s"${this.getClass.getSimpleName}")
-//      .master("local[*]")
+      .master("local[*]")
       .config("spark.default.parallelism", 100)
       .config("spark.streaming.concurrentJobs", 10)
       .config("spark.seriailzer", "org.apache.spark.serializer.KryoSerializer")

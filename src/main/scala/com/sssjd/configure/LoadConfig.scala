@@ -40,6 +40,17 @@ object LoadConfig {
     config.get("redis").getOrElse().toString
   }
 
+  def getSqlServerConfig() ={
+    val map = new mutable.HashMap[String,String]()
+    map.put("jdbcDriver",config.get("jdbcDriver").getOrElse().toString)
+    map.put("jdbcSize",config.get("jdbcSize").getOrElse().toString)
+    map.put("taxi_connectionUrl",config.get("taxi_connectionUrl").getOrElse().toString)
+    map.put("bus_connectionUrl",config.get("bus_connectionUrl").getOrElse().toString)
+    map
+  }
+
+
+
 
   def getKafkaConfig()={
 
