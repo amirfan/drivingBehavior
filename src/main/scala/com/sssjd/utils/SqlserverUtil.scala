@@ -1,33 +1,30 @@
 package com.sssjd.utils
 
 import java.sql.{Connection, DriverManager, PreparedStatement, ResultSet}
-
+import java.util.Properties
 import scala.collection.mutable.ArrayBuffer
+
 
 object SqlserverUtil {
 
-//  val jdbcDriver = "com.microsoft.sqlserver.jdbc.SQLServerDriver"
-//  val jdbcSize = 1
-//  val connectionUrl ="jdbc:sqlserver://192.168.100.97:1500;databaseName=JDTaxiDB;user=sa;password=sss_abc_123"
-
+  val jdbcDriver = "com.microsoft.sqlserver.jdbc.SQLServerDriver"
+  val jdbcSize = 1
+  var connectionUrl:String =null
   var datasource = ArrayBuffer[Connection]()
   var ps:PreparedStatement =null
   var rs:ResultSet=null
-  private var jdbcDriver:String = null
-  private var jdbcSize = 1
-  private var connectionUrl:String = null
 
 
-  def apply(jdbcDriver:String,jdbcSize:Int,connectionUrl:String): this.type ={
-    this.jdbcDriver = jdbcDriver
-    this.jdbcSize = jdbcSize
-    this.connectionUrl = connectionUrl
+  Class.forName(jdbcDriver).newInstance()
+
+
+  registerShutdownHook()
+
+
+  def apply(url:String) ={
+    connectionUrl = url
     this
   }
-
-//  init()
-  Class.forName(jdbcDriver).newInstance()
-  registerShutdownHook()
 
 
   private def init(): Unit ={
@@ -54,7 +51,7 @@ object SqlserverUtil {
 
   private[this] def createConnection(): Unit = synchronized{
     try{
-      val conn = DriverManager.getConnection( connectionUrl )
+      val conn = DriverManager.getConnection(connectionUrl)
       datasource += conn
     }catch{
       case e:Exception =>{
@@ -204,32 +201,33 @@ object SqlserverUtil {
 
   def main(args: Array[String]): Unit = {
 
+    val URL = "jdbc:sqlserver://192.168.100.97:1500;databaseName=jrCYTaxiDB;user=sa;password=sss_abc_123"
     // dbuscard,dguid,starttime,endtime,conTime,alarmtype,dealuid,uid,deal,speed,wspeed,alarmLevel,updateTime,startpos,endpos
 
-      //      //        println(rs.getString(1))
+    //      //        println(rs.getString(1))
 
 
-//      val sql =
-//        """
-//          |insert into T_AlarmJ(dbuscard,dguid,starttime,endtime)
-//          |values(?,?,?,?)
-//        """.stripMargin
-//      executeUpdate(sql,Array("苏L26068","64683461771","2019-07-09 16:24:09.0","2019-07-09 16:24:09.0"))
-//    createConnection()
-//    val sql2 =
-//      """
-//        |DELETE  FROM T_AlarmJ
-//        |WHERE startpos is null
-//      """.stripMargin
-//    executeUpdate(sql2,Array())
+    //      val sql =
+    //        """
+    //          |insert into T_AlarmJ(dbuscard,dguid,starttime,endtime)
+    //          |values(?,?,?,?)
+    //        """.stripMargin
+    //      executeUpdate(sql,Array("苏L26068","64683461771","2019-07-09 16:24:09.0","2019-07-09 16:24:09.0"))
+    //    createConnection()
+        val sql2 =
+          """
+            |DELETE  FROM T_AlarmJ
+            |WHERE alarmtype=2
+          """.stripMargin
+    SqlserverUtil(URL).executeUpdate(sql2,Array())
 
-    val res = executeQuery("Select * FROM T_AlarmJ where alarmtype=2").get
-//    val res = executeQuery("SELECT Name FROM SysColumns WHERE id=Object_Id('T_AlarmJ')").get
+    val res = SqlserverUtil(URL).executeQuery("Select * FROM T_AlarmJ where alarmtype=2").get
+    //    val res = executeQuery("SELECT Name FROM SysColumns WHERE id=Object_Id('T_AlarmJ')").get
     //
 
-//    while (res.next()) {
-//      println(res.getString(1))
-//    }
+    //    while (res.next()) {
+    //      println(res.getString(1))
+    //    }
     while (res.next()) {
       println(res.getString(1), res.getString(2), res.getString(3), res.getString(4),
         res.getString(5), res.getString(6), res.getString(7), res.getString(8),

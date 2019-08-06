@@ -1,7 +1,7 @@
 package com.sssjd.backup.taxiBK
 
 import java.text.SimpleDateFormat
-import java.util.Date
+import java.util.{Date, Properties}
 
 import com.sssjd.configure.LoadConfig
 import com.sssjd.utils.RedisUtil.{getJedis, retJedis}
@@ -36,6 +36,11 @@ object TaxiRapidDetail extends EventStatus {
 
   val kafkaConf = LoadConfig.getKafkaConfig()
 
+  def getProPerties() = {
+    val properties: Properties = new Properties()
+    properties.load(this.getClass().getClassLoader().getResourceAsStream("sqlserver.properties"))
+    properties
+  }
 
   def main(args: Array[String]): Unit = {
 
@@ -209,7 +214,9 @@ object TaxiRapidDetail extends EventStatus {
                   if(tips != null){
                     val ary: Array[Any] = Array(dbuscard,dguid,starttime,endtime,timeInterval,alarmtype,updatetime,tips,startpos,endpos)
                     println(ary.mkString(";"))
-                    SqlserverUtil.executeUpdate(sql,ary)
+                    val properties: Properties = getProPerties()
+                    val url = properties.getProperty("taxi_connectionUrl")
+                    SqlserverUtil(url).executeUpdate(sql,ary)
                   }
 
                 }

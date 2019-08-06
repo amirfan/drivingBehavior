@@ -1,7 +1,7 @@
 package com.sssjd.event.taxi
 
 import java.text.SimpleDateFormat
-import java.util.Date
+import java.util.{Date, Properties}
 
 import com.sssjd.configure.LoadConfig
 import com.sssjd.utils.RedisUtil.{getJedis, retJedis}
@@ -22,7 +22,12 @@ object TaxiRapidDetail {
   private val table = "T_AlarmJ"
   private val hbaseTable = "taxi_ns:rapidDetails"
   private val kafkaConf = LoadConfig.getKafkaConfig()
-  private val sqlserverConf = LoadConfig.getSqlServerConfig()
+
+  def getProPerties() = {
+    val properties: Properties = new Properties()
+    properties.load(this.getClass().getClassLoader().getResourceAsStream("sqlserver.properties"))
+    properties
+  }
 
   def main(args: Array[String]): Unit = {
     val spark = SparkSession
@@ -38,7 +43,6 @@ object TaxiRapidDetail {
       .config("spark.streaming.kafka.consumer.cache.enabled",false)
       .getOrCreate()
     spark.sparkContext.setLogLevel("ERROR")
-
 
     val ssc = new StreamingContext(spark.sparkContext, Seconds(1))
     val KafkaParams = Map[String, String](
@@ -220,10 +224,9 @@ object TaxiRapidDetail {
                   if(tips != null){
                     val ary: Array[Any] = Array(dbuscard,dguid,starttime,endtime,timeInterval,alarmtype,updatetime,tips,startpos,endpos)
                     println(ary.mkString(";"))
-                    val jdbcDriver = sqlserverConf.get("jdbcDriver").getOrElse().toString
-                    val jdbcSize = sqlserverConf.get("jdbcSize").getOrElse().toString.toInt
-                    val connectionUrl = sqlserverConf.get("taxi_connectionUrl").getOrElse().toString
-                    SqlserverUtil(jdbcDriver,jdbcSize,connectionUrl).executeUpdate(sql,ary)
+                    val properties: Properties = getProPerties()
+                    val url = properties.getProperty("taxi_connectionUrl")
+                    SqlserverUtil(url).executeUpdate(sql,ary)
                   }
                 }
               }
