@@ -8,7 +8,7 @@ import scala.collection.mutable.ArrayBuffer
 object SqlserverUtil {
 
   val jdbcDriver = "com.microsoft.sqlserver.jdbc.SQLServerDriver"
-  val jdbcSize = 1
+  val jdbcSize = 10
   var connectionUrl:String =null
   var datasource = ArrayBuffer[Connection]()
   var ps:PreparedStatement =null
@@ -163,6 +163,7 @@ object SqlserverUtil {
         throw new Exception
       }
     } finally {
+      conn.get.close()
       if ( !conn.isEmpty && !conn.get.isClosed ) {
         datasource += conn.get
       }

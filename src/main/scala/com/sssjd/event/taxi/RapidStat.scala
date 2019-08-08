@@ -61,7 +61,7 @@ object RapidStat {
       ssc,
       LocationStrategies.PreferConsistent,
       ConsumerStrategies.Subscribe[String, String](topics, KafkaParams))
-    val ds: DStream[String] = message.map(record =>record.value).window(Minutes(60),Minutes(1))
+    val ds: DStream[String] = message.map(record =>record.value).window(Minutes(120),Minutes(30))
 
     import spark.implicits._
     var jedis:Jedis = null
