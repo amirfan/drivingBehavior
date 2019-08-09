@@ -3,6 +3,7 @@ package com.sssjd.event.taxi
 import java.text.SimpleDateFormat
 
 import com.sssjd.configure.LoadConfig
+import com.sssjd.utils.RedisClient
 import com.sssjd.utils.RedisUtil.{getJedis, retJedis}
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.spark.sql.{DataFrame, Row, SparkSession}
@@ -63,10 +64,10 @@ object RapidStat {
       ConsumerStrategies.Subscribe[String, String](topics, KafkaParams))
     val ds: DStream[String] = message.map(record =>record.value).window(Minutes(120),Minutes(30))
 
+
     import spark.implicits._
-    var jedis:Jedis = null
+    val jedis: Jedis = RedisClient.pool.getResource
     try{
-      jedis = getJedis()
       ds.foreachRDD(rdd =>{
          if( !rdd.isEmpty()) {
             val df: DataFrame = rdd.map(_.split(",")).map(row => {

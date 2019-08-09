@@ -37,7 +37,7 @@ object LoadConfig {
 
 
   def getRedis()={
-    config.get("redis").getOrElse().toString
+    config.get("redis.host").getOrElse().toString
   }
 
   def getSqlServerConfig() ={

@@ -14,18 +14,10 @@ object RedisUtil {
     pool = new JedisPool(config, LoadConfig.getRedis(), 6379, 2000)
   }
 
-
-  def getJedis():Jedis= {
-    pool.getResource()
-  }
-
-
+  def getJedis():Jedis= pool.getResource()
 
   def retJedis(jds:Jedis): Unit = {
-    if (jds != null) {
-      //      pool.returnResource(jds)
-      jds.close()
-    }
+    if (jds != null) jds.close()
   }
 
 
