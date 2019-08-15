@@ -6,7 +6,7 @@ import java.util.{Date, Properties}
 import com.sssjd.configure.LoadConfig
 import com.sssjd.utils.RedisUtil.{getJedis, retJedis}
 import com.sssjd.utils.UDFDistance._
-import com.sssjd.utils.{HbaseUtil, JsonUtil, SqlserverUtil}
+import com.sssjd.utils.{HbaseUtil, JsonUtil, RedisClient, SqlserverUtil}
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.SparkSession
@@ -79,8 +79,7 @@ object BusRapidDetail {
   def fun(records: RDD[ConsumerRecord[String, String]]): Unit = {
     if (!records.isEmpty()) {
       records.foreachPartition { partitionRDD =>
-        var jedis: Jedis = null
-          jedis = getJedis()
+        val jedis: Jedis = RedisClient.pool.getResource
         try {
           partitionRDD.foreach(row => {
             val curList = row.value().split(",").toList
@@ -193,7 +192,7 @@ object BusRapidDetail {
                   val tips = alarmtype match {
                     case "1" if actualMileage > 0 => uptips
                     case "2" if actualMileage > 0 => dntips
-                    case "5" => "5"
+                    case "5" => "急转弯"
                     case _ => null
                   }
 
